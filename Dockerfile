@@ -4,8 +4,7 @@ FROM python:3.12 AS build
 #Install uv packages
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-
-#set workingg directory
+#set working directory
 WORKDIR /app
 COPY pyproject.toml ./
 
@@ -13,7 +12,7 @@ COPY pyproject.toml ./
 RUN uv sync --no-install-project --no-editable
 
 #copy requirements file
-COPY cc_simple_server/ /app/cc_simple_server/
+COPY . .
 
 RUN uv sync --no-editable
 
@@ -30,15 +29,7 @@ WORKDIR /app
 
 #copy the app files
 COPY --from=build /app/.venv /app/.venv
-
-
-
-
-#create non-root user
-
-
-#epose port 8000
-EXPOSE 8000
+COPY --from=build /app/tests /app/tests
 
 #set CMD to run the FAST API SERVER on 0.0.0.0:8000
 CMD ["uvicorn", "cc_simple_server.server:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
